@@ -1,6 +1,7 @@
 class Number {
   constructor(value) {
     this.value = value;
+    this.reducible = false;
   }
 
   getValue() {
@@ -20,6 +21,17 @@ class Add {
   constructor(left, right) {
     this.left = left;
     this.right = right;
+    this.reducible = true;
+  }
+
+  reduce() {
+    if (this.left.reducible) {
+      return new Add(this.left.reduce(), this.right);
+    } else if (this.right.reducible) {
+      return new Add(this.left, this.right.reduce());
+    } else {
+      return new Number(this.left.getValue() + this.right.getValue());
+    }
   }
 
   returnValue() {
@@ -39,6 +51,17 @@ class Multipy {
   constructor(left, right) {
     this.left = left;
     this.right = right;
+    this.reducible = true;
+  }
+
+  reduce() {
+    if (this.left.reducible) {
+      return new Multipy(this.left.reduce(), this.right);
+    } else if (this.right.reducible) {
+      return new Multipy(this.left, this.right.reduce());
+    } else {
+      return new Number(this.left.getValue() + this.right.getValue());
+    }
   }
 
   returnValue() {
@@ -54,9 +77,35 @@ class Multipy {
   }
 }
 
+class Machine {
+  constructor(expression) {
+    this.expression = expression;
+  }
+
+  step() {
+    console.log(this.expression.inspect());
+    this.expression = this.expression.reduce();
+  }
+
+  run() {
+    while (this.expression.reducible) {
+      this.step();
+    }
+    return this.expression;
+  }
+}
+
 console.log(
   new Add(
-    new Multipy(new Number(1), new Number(2)).inspect(),
-    new Multipy(new Number(3), new Number(4)).inspect()
-  ).inspect()
+    new Multipy(new Number(1), new Number(2)),
+    new Multipy(new Number(3), new Number(4))
+  )
+);
+
+console.log(new Add(new Number(1), new Number(2)).reduce());
+
+console.log(
+  new Machine(
+    new Multipy(new Add(new Number(1), new Number(2)), new Number(3))
+  ).run()
 );
