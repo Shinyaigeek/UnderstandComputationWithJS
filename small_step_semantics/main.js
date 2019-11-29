@@ -56,7 +56,7 @@ class Multipy {
 
 console.log(
     new Add(
-        new Multipy(new Number(1),new Number(2)),
+        new Multipy(new Number(2),new Number(2)),
         new Multipy(new Number(3),new Number(4)),
     )
 )
