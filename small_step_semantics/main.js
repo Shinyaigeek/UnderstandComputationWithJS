@@ -47,7 +47,7 @@ class Add {
   }
 }
 
-class Multipy {
+class Multiply {
   constructor(left, right) {
     this.left = left;
     this.right = right;
@@ -56,11 +56,11 @@ class Multipy {
 
   reduce() {
     if (this.left.reducible) {
-      return new Multipy(this.left.reduce(), this.right);
+      return new Multiply(this.left.reduce(), this.right);
     } else if (this.right.reducible) {
-      return new Multipy(this.left, this.right.reduce());
+      return new Multiply(this.left, this.right.reduce());
     } else {
-      return new Number(this.left.getValue() + this.right.getValue());
+      return new Number(this.left.getValue() * this.right.getValue());
     }
   }
 
@@ -75,6 +75,44 @@ class Multipy {
   inspect() {
     return `<< ${this} >>`;
   }
+}
+
+class Boolean {
+    constructor(value){
+        this.value = value;
+        this.reducible = false;
+    }
+
+    getValue(){
+        return this.value;
+    }
+
+    inspect(){
+        return `<< ${this.value} >>`;
+    }
+}
+
+class LessThan {
+    constructor(left,right){
+        this.left = left;
+        this.right = right;
+        this.reducible = true;
+    }
+
+    inspect(){
+        return `<< ${this.left} < ${this.right} >>`
+    }
+
+    reduce(){
+        if(this.left.reducible){
+            return new LessThan(this.left.reduce(),this.right);
+        }else if(this.right.reducible){
+            return new LessThan(this.left,this.right.reduce());
+        }else{
+            return new Boolean(this.left.getValue() < this.right.getValue())
+        }
+    }
+
 }
 
 class Machine {
@@ -97,8 +135,8 @@ class Machine {
 
 console.log(
   new Add(
-    new Multipy(new Number(1), new Number(2)),
-    new Multipy(new Number(3), new Number(4))
+    new Multiply(new Number(1), new Number(2)),
+    new Multiply(new Number(3), new Number(4))
   )
 );
 
@@ -106,6 +144,30 @@ console.log(new Add(new Number(1), new Number(2)).reduce());
 
 console.log(
   new Machine(
-    new Multipy(new Add(new Number(1), new Number(2)), new Number(3))
+    new Multiply(new Add(new Number(1), new Number(2)), new Number(3))
   ).run()
 );
+
+console.log(
+    new Machine(
+        new LessThan(
+            new Multiply(
+                new Add(
+                    new Number(1),
+                    new Number(2)
+                ),
+                new Number(3)
+            ),
+            new Add(
+                new Multiply(
+                    new Number(4),
+                    new Multiply(
+                        new Number(5),
+                        new Number(6)
+                    )
+                ),
+                new Number(7)
+            )
+        )
+    ).run()
+)
